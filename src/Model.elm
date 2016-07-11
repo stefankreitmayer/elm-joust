@@ -7,13 +7,13 @@ import Model.Scene exposing (..)
 import Time exposing (Time)
 
 type alias Model =
-  { ui : UIState
+  { ui : Ui
   , scene : Scene
-  , lastFrameTime : Time }
+  , lastRender : Time }
 
 
 initialModel : Model
 initialModel =
   { ui = initialUi
   , scene = initialScene
-  , lastFrameTime = -99999 }
+  , lastRender = -99999 }
