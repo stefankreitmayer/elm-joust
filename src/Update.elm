@@ -1,6 +1,7 @@
 module Update exposing (..)
 
 import Set exposing (Set)
+import Char
 import Keyboard exposing (KeyCode)
 
 import Model exposing (..)
@@ -31,8 +32,10 @@ update action ({ui,scene} as model) =
       let
           pressedKeys' =  (if pressed then Set.insert else Set.remove) keycode ui.pressedKeys
           ui' = { ui | pressedKeys = pressedKeys' }
+          player' = handleJump ui.pressedKeys pressedKeys' scene.player
+          scene' = { scene |  player = player' }
       in
-          ({ model | ui = ui' }, Cmd.none)
+          ({ model | ui = ui', scene = scene' }, Cmd.none)
 
     NoOp ->
       (model, Cmd.none)
@@ -41,16 +44,22 @@ update action ({ui,scene} as model) =
 stepPlayer : Ui -> Player -> Player
 stepPlayer {pressedKeys} ({position,velocity} as player) =
   let
-      directionX = if keyPressed 65 pressedKeys then
+      directionX = if keyPressed (Char.toCode 'A') pressedKeys then
                      -1
-                   else if keyPressed 68 pressedKeys then
+                   else if keyPressed (Char.toCode 'D') pressedKeys then
                      1
                    else
                      0
       ax = directionX * 0.007
       vx = velocity.x + ax |> friction |> speedLimit
-      position' = { position | x = position.x + vx }
-      velocity' = { velocity | x = vx }
+      vy = velocity.y |> gravity
+      x = position.x + vx
+      y = position.y + vy
+      (y', vy') = ground y vy
+      position' = { position | x = x
+                             , y = y' }
+      velocity' = { velocity | x = vx
+                             , y = vy' }
   in
       { player
       | position = position'
@@ -70,3 +79,29 @@ speedLimit vx =
 friction : Float -> Float
 friction vx =
   vx * 0.88
+
+
+handleJump : Set KeyCode -> Set KeyCode -> Player -> Player
+handleJump keyPressedBefore keyPressedNow ({position,velocity} as player) =
+  let
+      upKey = Char.toCode 'W'
+      wasPressed = keyPressed upKey keyPressedBefore
+      isPressed = keyPressed upKey keyPressedNow
+      vy = if position.y==icePosY && isPressed && (not wasPressed) then -0.07 else velocity.y
+      velocity' = { velocity | y = vy }
+  in
+      { player | velocity = velocity' }
+
+
+gravity : Float -> Float
+gravity vy =
+  vy + 0.008
+
+
+ground : Float -> Float -> (Float,Float)
+ground y vy =
+  let
+      vy = if y>=icePosY && vy>=0 then 0 else vy
+      y = y |> min icePosY
+  in
+      (y, vy)

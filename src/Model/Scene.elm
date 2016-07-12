@@ -24,12 +24,12 @@ initialScene =
 
 initialPlayer : Player
 initialPlayer =
-  { position = { x = 0.5, y = icePosY }
+  { position = { x = 0.5, y = icePosY-0.01 }
   , velocity = { x = 0, y = 0 } }
 
 
 icePosY : Float
-icePosY = 0.9
+icePosY = 0.8
 
 
 icePosX : Float
@@ -41,4 +41,4 @@ iceWidth = 0.8
 
 
 playerRadius : Float
-playerRadius = 0.04
+playerRadius = 0.05
