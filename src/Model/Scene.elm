@@ -36,9 +36,18 @@ icePosX : Float
 icePosX = 0.1
 
 
+iceRightEdgeX : Float
+iceRightEdgeX = icePosX + iceWidth
+
+
 iceWidth : Float
 iceWidth = 0.8
 
 
 playerRadius : Float
 playerRadius = 0.05
+
+
+distance : (Float,Float) -> (Float,Float) -> Float
+distance (x1,y1) (x2,y2) =
+  (x2-x1)^2 + (y2-y1)^2 |> sqrt
