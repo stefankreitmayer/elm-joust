@@ -7,12 +7,13 @@ type alias Scene =
   { t : Float
   , player : Player }
 
-type alias Point =
+type alias Vector =
   { x : Float
   , y : Float }
 
 type alias Player =
-  { position : Point }
+  { position : Vector
+  , velocity : Vector }
 
 
 initialScene : Scene
@@ -23,7 +24,8 @@ initialScene =
 
 initialPlayer : Player
 initialPlayer =
-  { position = { x = 0.5, y = icePosY } }
+  { position = { x = 0.5, y = icePosY }
+  , velocity = { x = 0, y = 0 } }
 
 
 icePosY : Float
@@ -39,4 +41,4 @@ iceWidth = 0.8
 
 
 playerRadius : Float
-playerRadius = 0.05
+playerRadius = 0.04

@@ -39,15 +39,34 @@ update action ({ui,scene} as model) =
 
 
 stepPlayer : Ui -> Player -> Player
-stepPlayer {pressedKeys} ({position} as player) =
+stepPlayer {pressedKeys} ({position,velocity} as player) =
   let
-      direction = if keyPressed 65 pressedKeys then
-              -1
-           else if keyPressed 68 pressedKeys then
-                   1
-              else
-              0
-      vx = direction * 0.01
+      directionX = if keyPressed 65 pressedKeys then
+                     -1
+                   else if keyPressed 68 pressedKeys then
+                     1
+                   else
+                     0
+      ax = directionX * 0.007
+      vx = velocity.x + ax |> friction |> speedLimit
       position' = { position | x = position.x + vx }
+      velocity' = { velocity | x = vx }
   in
-      { player | position = position' }
+      { player
+      | position = position'
+      , velocity = velocity' }
+
+
+speedLimit : Float -> Float
+speedLimit vx =
+  let
+      maxSpeed = 0.03
+  in
+      vx
+      |> max -maxSpeed
+      |> min maxSpeed
+
+
+friction : Float -> Float
+friction vx =
+  vx * 0.88
