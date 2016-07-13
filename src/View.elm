@@ -1,6 +1,7 @@
 module View exposing (view)
 
 import Html exposing (Html)
+import Html.Attributes exposing (class)
 import Svg exposing (Svg,Attribute)
 import Svg.Attributes as Attributes exposing (x,y,width,height,fill)
 import Svg.Events exposing (onClick)
@@ -19,11 +20,24 @@ import Json.Encode as Json
 
 view : Model -> Html Msg
 view {ui,scene} =
-  renderAll ui.windowSize scene
+  case ui.screen of
+    StartScreen ->
+      renderStartScreen ui.windowSize
+
+    PlayScreen ->
+      renderPlayScreen ui.windowSize scene
 
 
-renderAll : (Int,Int) -> Scene -> Html.Html Msg
-renderAll (w,h) ({t,player} as scene) =
+renderStartScreen : (Int,Int) -> Html.Html Msg
+renderStartScreen (w,h)  =
+  Html.button
+    [ class "start-game-button"
+    , style "top: jkjk]
+    [ Html.text "Click to start" ]
+
+
+renderPlayScreen : (Int,Int) -> Scene -> Html.Html Msg
+renderPlayScreen (w,h) ({t,player} as scene) =
   let
       windowSize = (w,h)
   in

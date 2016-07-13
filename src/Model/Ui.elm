@@ -8,13 +8,17 @@ import Model.Shared exposing (..)
 
 type alias Ui =
   { windowSize : (Int, Int)
-  , pressedKeys : Set KeyCode }
+  , pressedKeys : Set KeyCode
+  , screen : Screen }
 
+
+type Screen = StartScreen | PlayScreen
 
 initialUi : Ui
 initialUi =
   { windowSize = (500,500)
-  , pressedKeys = Set.empty }
+  , pressedKeys = Set.empty
+  , screen = StartScreen }
 
 
 keyPressed : KeyCode -> Set KeyCode -> Bool
