@@ -12,7 +12,7 @@ type alias Ui =
   , screen : Screen }
 
 
-type Screen = StartScreen | PlayScreen
+type Screen = StartScreen | PlayScreen | GameoverScreen
 
 initialUi : Ui
 initialUi =

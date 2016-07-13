@@ -35,6 +35,9 @@ subscriptions {ui} =
        PlayScreen ->
          [ window ] ++ play
 
+       GameoverScreen ->
+         [ window ]
+
      ) |> Sub.batch
 
 

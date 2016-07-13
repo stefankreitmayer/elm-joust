@@ -27,6 +27,9 @@ view {ui,scene} =
     PlayScreen ->
       renderPlayScreen ui.windowSize scene
 
+    GameoverScreen ->
+      renderGameoverScreen ui.windowSize
+
 
 renderStartScreen : (Int,Int) -> Html.Html Msg
 renderStartScreen (w,h)  =
@@ -56,6 +59,33 @@ renderPlayScreen (w,h) ({t,player} as scene) =
      [ renderIce windowSize
      , renderPlayer windowSize player
      ]
+
+
+renderGameoverScreen : (Int,Int) -> Html.Html Msg
+renderGameoverScreen (w,h)  =
+  let
+      clickHandler = onClick ClickToPlay
+      screenAttrs = [ clickHandler ] ++ (svgAttributes (w,h))
+      messageAttrs = [ x <| toString (w//2)
+                     , y <| toString (h//2)
+                     , fontSize <| toString ((normalFontSize w) * 2)
+                     , textAnchor "middle"
+                     , fontFamily "Verdana,Helvetica,sans"
+                     , fill "rgba(255,255,255,.8)"
+                     ]
+      submessageAttrs = [ x <| toString (w//2)
+                        , y <| toString (h//2 + (normalFontSize w) * 2)
+                        , fontSize <| toString (normalFontSize w)
+                        , textAnchor "middle"
+                        , fontFamily "Verdana,Helvetica,sans"
+                        , fill "rgba(255,255,255,.8)"
+                        ]
+      message = Svg.text' messageAttrs [ Svg.text "Game over" ]
+      submessage = Svg.text' submessageAttrs [ Svg.text "Click to restart" ]
+  in
+      Svg.svg
+        screenAttrs
+        [ message, submessage ]
 
 
 svgAttributes : (Int, Int) -> List (Attribute Msg)

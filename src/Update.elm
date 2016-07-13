@@ -22,9 +22,11 @@ update action ({ui,scene} as model) =
       let
           player' = stepPlayer ui scene.player
           scene' = { scene | t = time, player = player' }
+          screen' = if player'.position.y > 1 then GameoverScreen else PlayScreen
+          ui' = { ui | screen = screen' }
       in
          if time > model.lastRender+40 then
-           ({ model | scene = scene', lastRender = time }, Cmd.none)
+           ({ model | scene = scene', lastRender = time, ui = ui' }, Cmd.none)
          else
            (model, Cmd.none)
 
@@ -39,9 +41,10 @@ update action ({ui,scene} as model) =
 
     ClickToPlay ->
       let
-          ui' = { ui | screen = PlayScreen }
+          ui' = { ui | screen = PlayScreen, pressedKeys = Set.empty }
+          scene' = initialScene
       in
-          ({ model | ui = ui' }, Cmd.none)
+          ({ model | ui = ui', scene = scene' }, Cmd.none)
 
     NoOp ->
       (model, Cmd.none)
