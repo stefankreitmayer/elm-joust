@@ -3,6 +3,7 @@ module Subscription exposing (..)
 import Time exposing (Time,second)
 
 import Model exposing (..)
+import Model.Ui exposing (..)
 import Window
 import Task
 import AnimationFrame
@@ -13,17 +14,28 @@ type Msg
   = ResizeWindow (Int,Int)
   | Tick Time
   | KeyChange Bool KeyCode
+  | ClickToPlay
   | NoOp
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-  [ Window.resizes (\{width,height} -> ResizeWindow (width,height))
-  , Keyboard.downs (KeyChange True)
-  , Keyboard.ups (KeyChange False)
-  , AnimationFrame.times Tick
-  ]
-  |> Sub.batch
+subscriptions {ui} =
+  let
+      window = Window.resizes (\{width,height} -> ResizeWindow (width,height))
+      play = [ Keyboard.downs (KeyChange True)
+             , Keyboard.ups (KeyChange False)
+             , AnimationFrame.times Tick
+             ]
+  in
+     (
+     case ui.screen of
+       StartScreen ->
+         [ window ]
+
+       PlayScreen ->
+         [ window ] ++ play
+
+     ) |> Sub.batch
 
 
 initialWindowSizeCommand : Cmd Msg

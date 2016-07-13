@@ -37,6 +37,12 @@ update action ({ui,scene} as model) =
       in
           ({ model | ui = ui', scene = scene' }, Cmd.none)
 
+    ClickToPlay ->
+      let
+          ui' = { ui | screen = PlayScreen }
+      in
+          ({ model | ui = ui' }, Cmd.none)
+
     NoOp ->
       (model, Cmd.none)
 

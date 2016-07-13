@@ -3,7 +3,7 @@ module View exposing (view)
 import Html exposing (Html)
 import Html.Attributes exposing (class)
 import Svg exposing (Svg,Attribute)
-import Svg.Attributes as Attributes exposing (x,y,width,height,fill)
+import Svg.Attributes as Attributes exposing (x,y,width,height,fill,fontSize,fontFamily,textAnchor)
 import Svg.Events exposing (onClick)
 import Time exposing (Time)
 import String
@@ -30,10 +30,21 @@ view {ui,scene} =
 
 renderStartScreen : (Int,Int) -> Html.Html Msg
 renderStartScreen (w,h)  =
-  Html.button
-    [ class "start-game-button"
-    , style "top: jkjk]
-    [ Html.text "Click to start" ]
+  let
+      clickHandler = onClick ClickToPlay
+      screenAttrs = [ clickHandler ] ++ (svgAttributes (w,h))
+      messageAttrs = [ x <| toString (w//2)
+                     , y <| toString (h//2)
+                     , fontSize <| toString (normalFontSize w)
+                     , textAnchor "middle"
+                     , fontFamily "Verdana,Helvetica,sans"
+                     , fill "rgba(255,255,255,.8)"
+                     ]
+      message = Svg.text' messageAttrs [ Svg.text "Click to start" ]
+  in
+      Svg.svg
+        screenAttrs
+        [ message ]
 
 
 renderPlayScreen : (Int,Int) -> Scene -> Html.Html Msg
@@ -94,3 +105,8 @@ renderPlayer (w,h) {position} =
 
 softWhite : String
 softWhite = "rgba(255,255,255,.2)"
+
+
+normalFontSize : Int -> Int
+normalFontSize w =
+  w // 20 |> min 24
