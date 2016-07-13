@@ -48,9 +48,9 @@ renderIce : (Int,Int) -> Svg Msg
 renderIce (w,h) =
   let
       xString = (toFloat w) * icePosX |> toString
-      yString = (toFloat h) * icePosY |> toString
+      yString = (toFloat (h-w)) + (toFloat w) * icePosY |> toString
       widthString = (toFloat w) * iceWidth |> toString
-      heightString = (toFloat h) * (1-icePosY) |> toString
+      heightString = (toFloat w) * (1-icePosY) |> toString
   in
       Svg.rect
         [ x xString
@@ -66,8 +66,8 @@ renderPlayer : (Int,Int) -> Player -> Svg Msg
 renderPlayer (w,h) {position} =
   let
       x = (toFloat w) * position.x |> toString
-      y = (toFloat h) * (position.y-playerRadius) |> toString
-      radius = (toFloat h) * playerRadius |> toString
+      y = (toFloat (h-w)) + (toFloat w) * (position.y-playerRadius) |> toString
+      radius = (toFloat w) * playerRadius |> toString
   in
       Svg.circle
         [ Attributes.cx x
