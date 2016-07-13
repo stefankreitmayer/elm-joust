@@ -29,20 +29,10 @@ update action ({ui,scene} as model) =
           ({ model | scene = scene', ui = ui' }, Cmd.none)
 
     KeyChange pressed keycode ->
-      let
-          pressedKeys' =  (if pressed then Set.insert else Set.remove) keycode ui.pressedKeys
-          ui' = { ui | pressedKeys = pressedKeys' }
-          player' = handleJump ui.pressedKeys pressedKeys' scene.player
-          scene' = { scene |  player = player' }
-      in
-          ({ model | ui = ui', scene = scene' }, Cmd.none)
+      (handleKeyChange pressed keycode model, Cmd.none)
 
-    ClickToPlay ->
-      let
-          ui' = { ui | screen = PlayScreen, pressedKeys = Set.empty }
-          scene' = initialScene
-      in
-          ({ model | ui = ui', scene = scene' }, Cmd.none)
+    StartGame ->
+      (freshGame ui, Cmd.none)
 
     NoOp ->
       (model, Cmd.none)
@@ -118,13 +108,10 @@ friction delta vx =
   vx / (1 + 0.0018*delta)
 
 
-handleJump : Set KeyCode -> Set KeyCode -> Player -> Player
-handleJump keyPressedBefore keyPressedNow ({position,velocity} as player) =
+jump : Player -> Player
+jump ({position,velocity} as player) =
   let
-      upKey = Char.toCode 'W'
-      wasPressed = keyPressed upKey keyPressedBefore
-      isPressed = keyPressed upKey keyPressedNow
-      vy = if position.y==icePosY && isPressed && (not wasPressed) then -0.001 else velocity.y
+      vy = if position.y==icePosY then -0.001 else velocity.y
       velocity' = { velocity | y = vy }
   in
       { player | velocity = velocity' }
@@ -149,4 +136,43 @@ rollOffEdge x y isLeftSide =
 
 keepOutOfBounds : Float -> Float
 keepOutOfBounds x =
-  if x<0.5 then min x (icePosX-playerRadius) else max x (iceRightEdgeX+playerRadius)
+  if x<0.5 then
+     min x (icePosX-playerRadius)
+  else
+     max x (iceRightEdgeX+playerRadius)
+
+
+handleKeyChange : Bool -> KeyCode -> Model -> Model
+handleKeyChange pressed keycode ({scene,ui} as model) =
+  let
+      fn = if pressed then Set.insert else Set.remove
+      pressedKeys' = fn keycode ui.pressedKeys
+  in
+      case ui.screen of
+        PlayScreen ->
+          let
+              ui' = { ui | pressedKeys = pressedKeys' }
+              player' = if freshKeyPress 'W' ui.pressedKeys pressedKeys' then
+                           jump scene.player
+                         else
+                           scene.player
+              scene' = { scene |  player = player' }
+          in
+              { model | ui = ui', scene = scene' }
+
+        GameoverScreen ->
+          if freshKeyPress ' ' ui.pressedKeys pressedKeys' then
+            freshGame ui
+          else
+            model
+
+        _ ->
+          model
+
+
+freshKeyPress : Char -> Set KeyCode -> Set KeyCode -> Bool
+freshKeyPress char previouslyPressedKeys currentlyPressedKeys =
+  let
+      pressed = keyPressed (Char.toCode char)
+  in
+      pressed currentlyPressedKeys && not (pressed previouslyPressedKeys)

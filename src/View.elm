@@ -34,7 +34,7 @@ view {ui,scene} =
 renderStartScreen : (Int,Int) -> Html.Html Msg
 renderStartScreen (w,h)  =
   let
-      clickHandler = onClick ClickToPlay
+      clickHandler = onClick StartGame
       screenAttrs = [ clickHandler ] ++ (svgAttributes (w,h))
       messageAttrs = [ x <| toString (w//2)
                      , y <| toString (h//2)
@@ -64,8 +64,7 @@ renderPlayScreen (w,h) ({t,player} as scene) =
 renderGameoverScreen : (Int,Int) -> Html.Html Msg
 renderGameoverScreen (w,h)  =
   let
-      clickHandler = onClick ClickToPlay
-      screenAttrs = [ clickHandler ] ++ (svgAttributes (w,h))
+      screenAttrs = svgAttributes (w,h)
       messageAttrs = [ x <| toString (w//2)
                      , y <| toString (h//2)
                      , fontSize <| toString ((normalFontSize w) * 2)
@@ -81,7 +80,7 @@ renderGameoverScreen (w,h)  =
                         , fill "rgba(255,255,255,.8)"
                         ]
       message = Svg.text' messageAttrs [ Svg.text "Game over" ]
-      submessage = Svg.text' submessageAttrs [ Svg.text "Click to restart" ]
+      submessage = Svg.text' submessageAttrs [ Svg.text "Press SPACE to restart" ]
   in
       Svg.svg
         screenAttrs

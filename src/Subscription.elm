@@ -14,7 +14,7 @@ type Msg
   = ResizeWindow (Int,Int)
   | Tick Time
   | KeyChange Bool KeyCode
-  | ClickToPlay
+  | StartGame
   | NoOp
 
 
@@ -22,10 +22,10 @@ subscriptions : Model -> Sub Msg
 subscriptions {ui} =
   let
       window = Window.resizes (\{width,height} -> ResizeWindow (width,height))
-      play = [ Keyboard.downs (KeyChange True)
+      keys = [ Keyboard.downs (KeyChange True)
              , Keyboard.ups (KeyChange False)
-             , AnimationFrame.diffs Tick
              ]
+      animation = [ AnimationFrame.diffs Tick ]
   in
      (
      case ui.screen of
@@ -33,10 +33,10 @@ subscriptions {ui} =
          [ window ]
 
        PlayScreen ->
-         [ window ] ++ play
+         [ window ] ++ keys ++ animation
 
        GameoverScreen ->
-         [ window ]
+         [ window ] ++ keys
 
      ) |> Sub.batch
 
