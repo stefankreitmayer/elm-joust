@@ -29,7 +29,7 @@ initialPlayer =
 
 
 icePosY : Float
-icePosY = 0.8
+icePosY = 0.89
 
 
 icePosX : Float
@@ -45,7 +45,7 @@ iceWidth = 0.8
 
 
 playerRadius : Float
-playerRadius = 0.05
+playerRadius = 0.03
 
 
 distance : (Float,Float) -> (Float,Float) -> Float

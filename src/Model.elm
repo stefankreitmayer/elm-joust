@@ -8,12 +8,10 @@ import Time exposing (Time)
 
 type alias Model =
   { ui : Ui
-  , scene : Scene
-  , lastRender : Time }
+  , scene : Scene }
 
 
 initialModel : Model
 initialModel =
   { ui = initialUi
-  , scene = initialScene
-  , lastRender = -99999 }
+  , scene = initialScene }

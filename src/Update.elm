@@ -2,6 +2,7 @@ module Update exposing (..)
 
 import Set exposing (Set)
 import Char
+import Time exposing (Time)
 import Keyboard exposing (KeyCode)
 
 import Model exposing (..)
@@ -18,17 +19,14 @@ update action ({ui,scene} as model) =
     ResizeWindow dimensions ->
       ({ model | ui = { ui | windowSize = dimensions } }, Cmd.none)
 
-    Tick time ->
+    Tick delta ->
       let
-          player' = stepPlayer ui scene.player
-          scene' = { scene | t = time, player = player' }
+          player' = stepPlayer delta ui scene.player
+          scene' = { scene | player = player' }
           screen' = if player'.position.y > 1 then GameoverScreen else PlayScreen
           ui' = { ui | screen = screen' }
       in
-         if time > model.lastRender+40 then
-           ({ model | scene = scene', lastRender = time, ui = ui' }, Cmd.none)
-         else
-           (model, Cmd.none)
+          ({ model | scene = scene', ui = ui' }, Cmd.none)
 
     KeyChange pressed keycode ->
       let
@@ -50,26 +48,27 @@ update action ({ui,scene} as model) =
       (model, Cmd.none)
 
 
-stepPlayer : Ui -> Player -> Player
-stepPlayer {pressedKeys} ({position,velocity} as player) =
+stepPlayer : Time -> Ui -> Player -> Player
+stepPlayer delta {pressedKeys} ({position,velocity} as player) =
   let
+      delta = delta * 0.8 -- tweak the overall pace of gameplay
       directionX = if keyPressed (Char.toCode 'A') pressedKeys then
                      -1
                    else if keyPressed (Char.toCode 'D') pressedKeys then
                      1
                    else
                      0
-      ax = directionX * 0.007
-      vx = velocity.x + ax |> friction |> speedLimit
-      vy = velocity.y |> gravity
-      airborne = position.y + vy < icePosY
+      ax = directionX * 0.0000019
+      vx = velocity.x + ax*delta |> friction delta
+      vy = velocity.y |> (gravity delta)
+      airborne = position.y + vy*delta < icePosY
       stepFn = if airborne then
                  fly
                else if inBounds position.x then
                  walk
                else
                  fall
-      (x', y', vx', vy') = stepFn position.x position.y vx vy
+      (x', y', vx', vy') = stepFn delta position.x position.y vx vy
       position' = { position | x = x'
                              , y = y' }
       velocity' = { velocity | x = vx'
@@ -80,26 +79,26 @@ stepPlayer {pressedKeys} ({position,velocity} as player) =
       , velocity = velocity' }
 
 
-fly : Float -> Float -> Float -> Float -> (Float,Float,Float,Float)
-fly x y vx vy =
-  (x+vx, y+vy, vx, vy)
+fly : Time -> Float -> Float -> Float -> Float -> (Float,Float,Float,Float)
+fly delta x y vx vy =
+  (x+vx*delta, y+vy*delta, vx, vy)
 
 
-walk : Float -> Float -> Float -> Float -> (Float,Float,Float,Float)
-walk x y vx vy =
+walk : Time -> Float -> Float -> Float -> Float -> (Float,Float,Float,Float)
+walk delta x y vx vy =
   let
-      x = x + vx
+      x = x + vx*delta
       y = icePosY
       vy = 0
   in
       (x, y, vx, vy)
 
 
-fall : Float -> Float -> Float -> Float -> (Float,Float,Float,Float)
-fall x y vx vy =
+fall : Time -> Float -> Float -> Float -> Float -> (Float,Float,Float,Float)
+fall delta x y vx vy =
   let
-      y = y + vy
-      x = x + vx
+      y = y + vy*delta
+      x = x + vx*delta
       isLeftSide = x<0.5
       x' = if y<icePosY+playerRadius then
              rollOffEdge x y isLeftSide
@@ -114,19 +113,9 @@ inBounds x =
   x>=icePosX && x<=iceRightEdgeX
 
 
-speedLimit : Float -> Float
-speedLimit vx =
-  let
-      maxSpeed = 0.03
-  in
-      vx
-      |> max -maxSpeed
-      |> min maxSpeed
-
-
-friction : Float -> Float
-friction vx =
-  vx * 0.88
+friction : Time -> Float -> Float
+friction delta vx =
+  vx / (1 + 0.0018*delta)
 
 
 handleJump : Set KeyCode -> Set KeyCode -> Player -> Player
@@ -135,15 +124,15 @@ handleJump keyPressedBefore keyPressedNow ({position,velocity} as player) =
       upKey = Char.toCode 'W'
       wasPressed = keyPressed upKey keyPressedBefore
       isPressed = keyPressed upKey keyPressedNow
-      vy = if position.y==icePosY && isPressed && (not wasPressed) then -0.07 else velocity.y
+      vy = if position.y==icePosY && isPressed && (not wasPressed) then -0.001 else velocity.y
       velocity' = { velocity | y = vy }
   in
       { player | velocity = velocity' }
 
 
-gravity : Float -> Float
-gravity vy =
-  vy + 0.008
+gravity : Time -> Float -> Float
+gravity delta vy =
+  vy + 0.000003 * delta
 
 
 rollOffEdge : Float -> Float -> Bool -> Float

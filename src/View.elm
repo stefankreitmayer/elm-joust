@@ -38,7 +38,7 @@ renderStartScreen (w,h)  =
       screenAttrs = [ clickHandler ] ++ (svgAttributes (w,h))
       messageAttrs = [ x <| toString (w//2)
                      , y <| toString (h//2)
-                     , fontSize <| toString (normalFontSize w)
+                     , fontSize <| toString ((normalFontSize w) * 2)
                      , textAnchor "middle"
                      , fontFamily "Verdana,Helvetica,sans"
                      , fill "rgba(255,255,255,.8)"

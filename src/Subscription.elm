@@ -24,7 +24,7 @@ subscriptions {ui} =
       window = Window.resizes (\{width,height} -> ResizeWindow (width,height))
       play = [ Keyboard.downs (KeyChange True)
              , Keyboard.ups (KeyChange False)
-             , AnimationFrame.times Tick
+             , AnimationFrame.diffs Tick
              ]
   in
      (
