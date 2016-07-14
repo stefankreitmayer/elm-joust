@@ -21,9 +21,13 @@ update action ({ui,scene} as model) =
 
     Tick delta ->
       let
-          player1' = stepPlayer delta ui scene.player1
-          player2' = stepPlayer delta ui scene.player2
-          scene' = { scene |  player1 = player1', player2 = player2' }
+          player1 = scene.player1 |> steerAndGravity delta ui
+          player2 = scene.player2 |> steerAndGravity delta ui
+          player1' = player1 |> handleCollisions player2
+          player2' = player2 |> handleCollisions player1
+          player1'' = player1' |> movePlayer delta
+          player2'' = player2' |> movePlayer delta
+          scene' = { scene | player1 = player1'', player2 = player2'' }
           hasLost player = player.position.y > 1 + playerRadius*2
           winner =
               if hasLost player1' then
@@ -49,10 +53,9 @@ update action ({ui,scene} as model) =
       (model, Cmd.none)
 
 
-stepPlayer : Time -> Ui -> Player -> Player
-stepPlayer delta {pressedKeys} ({position,velocity} as player) =
+steerAndGravity : Time -> Ui -> Player -> Player
+steerAndGravity delta {pressedKeys} ({velocity} as player) =
   let
-      delta = delta * 0.8 -- tweak the overall pace of gameplay
       directionX = if keyPressed player.leftKey pressedKeys then
                      -1
                    else if keyPressed player.rightKey pressedKeys then
@@ -60,8 +63,25 @@ stepPlayer delta {pressedKeys} ({position,velocity} as player) =
                    else
                      0
       ax = directionX * 0.0000019
-      vx = velocity.x + ax*delta |> friction delta
-      vy = velocity.y |> (gravity delta)
+      vx' = velocity.x + ax*delta |> friction delta
+      vy' = velocity.y |> (gravity delta)
+      velocity' = { velocity | x = vx'
+                             , y = vy' }
+  in
+     { player | velocity = velocity' }
+
+
+handleCollisions : Player -> Player -> Player
+handleCollisions other subject =
+  subject
+
+
+
+movePlayer : Time -> Player -> Player
+movePlayer delta ({velocity,position} as player) =
+  let
+      vx = velocity.x
+      vy = velocity.y
       airborne = position.y + vy*delta < icePosY
       stepFn = if airborne then
                  fly
@@ -72,12 +92,9 @@ stepPlayer delta {pressedKeys} ({position,velocity} as player) =
       (x', y', vx', vy') = stepFn delta position.x position.y vx vy
       position' = { position | x = x'
                              , y = y' }
-      velocity' = { velocity | x = vx'
-                             , y = vy' }
   in
-      { player
-      | position = position'
-      , velocity = velocity' }
+      { player | position = position' }
+
 
 
 fly : Time -> Float -> Float -> Float -> Float -> (Float,Float,Float,Float)
