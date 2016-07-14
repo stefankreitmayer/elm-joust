@@ -8,6 +8,7 @@ import Keyboard exposing (KeyCode)
 import Model exposing (..)
 import Model.Ui exposing (..)
 import Model.Scene exposing (..)
+import Model.Geometry exposing (..)
 import Subscription exposing (..)
 
 import Debug exposing (log)
@@ -23,8 +24,7 @@ update action ({ui,scene} as model) =
       let
           player1 = scene.player1 |> steerAndGravity delta ui
           player2 = scene.player2 |> steerAndGravity delta ui
-          player1' = player1 |> handleCollisions player2
-          player2' = player2 |> handleCollisions player1
+          (player1', player2') = handleCollisions player1 player2
           player1'' = player1' |> movePlayer delta
           player2'' = player2' |> movePlayer delta
           scene' = { scene | player1 = player1'', player2 = player2'' }
@@ -71,10 +71,23 @@ steerAndGravity delta {pressedKeys} ({velocity} as player) =
      { player | velocity = velocity' }
 
 
-handleCollisions : Player -> Player -> Player
-handleCollisions other subject =
-  subject
+handleCollisions : Player -> Player -> (Player,Player)
+handleCollisions player1 player2 =
+  if playersOverlap player1 player2 then
+    bounceOffEachOther player1 player2
+  else
+    (player1, player2)
 
+
+bounceOffEachOther : Player -> Player -> (Player,Player)
+bounceOffEachOther player1 player2 =
+  let
+      v1 = deflect player1 player2
+      v2 = deflect player2 player1
+      player1' = { player1 | velocity = v1 }
+      player2' = { player2 | velocity = v2 }
+  in
+      (player1', player2')
 
 
 movePlayer : Time -> Player -> Player
@@ -92,8 +105,11 @@ movePlayer delta ({velocity,position} as player) =
       (x', y', vx', vy') = stepFn delta position.x position.y vx vy
       position' = { position | x = x'
                              , y = y' }
+      velocity' = { velocity | x = vx'
+                             , y = vy' }
   in
-      { player | position = position' }
+      { player | position = position'
+               , velocity = velocity' }
 
 
 

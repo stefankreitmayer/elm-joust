@@ -3,7 +3,6 @@ module Model.Ui exposing (..)
 import Set exposing (Set)
 import Keyboard exposing (KeyCode)
 
-import Model.Shared exposing (..)
 import Model.Scene exposing (..)
 
 

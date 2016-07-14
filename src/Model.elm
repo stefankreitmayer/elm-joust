@@ -3,7 +3,6 @@ module Model exposing (..)
 import Time exposing (Time)
 import Set
 
-import Model.Shared exposing (..)
 import Model.Ui exposing (..)
 import Model.Scene exposing (..)
 

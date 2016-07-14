@@ -3,17 +3,13 @@ module Model.Scene exposing (..)
 import Keyboard exposing (KeyCode)
 import Char exposing (toCode)
 
-import Model.Shared exposing (..)
+import Model.Geometry exposing (..)
 
 
 type alias Scene =
   { t : Float
   , player1 : Player
   , player2 : Player }
-
-type alias Vector =
-  { x : Float
-  , y : Float }
 
 type alias Player =
   { leftKey : KeyCode
@@ -59,11 +55,25 @@ playerRadius : Float
 playerRadius = 0.03
 
 
-distance : (Float,Float) -> (Float,Float) -> Float
-distance (x1,y1) (x2,y2) =
-  (x2-x1)^2 + (y2-y1)^2 |> sqrt
-
-
 players : Scene -> List Player
 players scene =
   [ scene.player1, scene.player2 ]
+
+
+playersOverlap : Player -> Player -> Bool
+playersOverlap p1 p2 =
+  let
+      d = distance (p1.position.x,p1.position.y) (p2.position.x,p2.position.y)
+  in
+      d < playerRadius*2
+
+
+deflect : Player -> Player -> Vector
+deflect player otherPlayer =
+  let
+      power = magnitude otherPlayer.velocity
+      angle = angleBetweenPoints player.position otherPlayer.position |> (+) pi
+      vx = cos angle |> (*) power
+      vy = sin angle |> (*) power
+  in
+      { x = vx, y = vy }

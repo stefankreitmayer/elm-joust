@@ -9,7 +9,6 @@ import Time exposing (Time)
 import String
 
 import Model exposing (..)
-import Model.Shared exposing (..)
 import Model.Ui exposing (..)
 import Model.Scene exposing (..)
 import Subscription exposing (..)
