@@ -21,10 +21,21 @@ update action ({ui,scene} as model) =
 
     Tick delta ->
       let
-          player' = stepPlayer delta ui scene.player
-          scene' = { scene | player = player' }
-          screen' = if player'.position.y > 1 then GameoverScreen else PlayScreen
-          ui' = { ui | screen = screen' }
+          player1' = stepPlayer delta ui scene.player1
+          player2' = stepPlayer delta ui scene.player2
+          scene' = { scene |  player1 = player1', player2 = player2' }
+          hasLost player = player.position.y > 1 + playerRadius*2
+          winner =
+              if hasLost player1' then
+                Just player2'
+              else if hasLost player2' then
+                Just player1'
+              else
+                Nothing
+          screen' = case winner of
+                      Just _ -> GameoverScreen
+                      Nothing -> PlayScreen
+          ui' = { ui | screen = screen', winner = winner }
       in
           ({ model | scene = scene', ui = ui' }, Cmd.none)
 
@@ -42,9 +53,9 @@ stepPlayer : Time -> Ui -> Player -> Player
 stepPlayer delta {pressedKeys} ({position,velocity} as player) =
   let
       delta = delta * 0.8 -- tweak the overall pace of gameplay
-      directionX = if keyPressed (Char.toCode 'A') pressedKeys then
+      directionX = if keyPressed player.leftKey pressedKeys then
                      -1
-                   else if keyPressed (Char.toCode 'D') pressedKeys then
+                   else if keyPressed player.rightKey pressedKeys then
                      1
                    else
                      0
@@ -152,16 +163,19 @@ handleKeyChange pressed keycode ({scene,ui} as model) =
         PlayScreen ->
           let
               ui' = { ui | pressedKeys = pressedKeys' }
-              player' = if freshKeyPress 'W' ui.pressedKeys pressedKeys' then
-                           jump scene.player
-                         else
-                           scene.player
-              scene' = { scene |  player = player' }
+              justPressed keycode = freshKeyPress keycode ui.pressedKeys pressedKeys'
+              maybeJump player = if justPressed player.jumpKey then
+                                   jump player
+                                 else
+                                   player
+              player1' = maybeJump scene.player1
+              player2' = maybeJump scene.player2
+              scene' = { scene |  player1 = player1', player2 = player2' }
           in
               { model | ui = ui', scene = scene' }
 
         GameoverScreen ->
-          if freshKeyPress ' ' ui.pressedKeys pressedKeys' then
+          if freshKeyPress (Char.toCode ' ') ui.pressedKeys pressedKeys' then
             freshGame ui
           else
             model
@@ -170,9 +184,9 @@ handleKeyChange pressed keycode ({scene,ui} as model) =
           model
 
 
-freshKeyPress : Char -> Set KeyCode -> Set KeyCode -> Bool
-freshKeyPress char previouslyPressedKeys currentlyPressedKeys =
+freshKeyPress : KeyCode -> Set KeyCode -> Set KeyCode -> Bool
+freshKeyPress keycode previouslyPressedKeys currentlyPressedKeys =
   let
-      pressed = keyPressed (Char.toCode char)
+      pressed = keyPressed keycode
   in
       pressed currentlyPressedKeys && not (pressed previouslyPressedKeys)

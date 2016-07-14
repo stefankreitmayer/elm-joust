@@ -1,30 +1,41 @@
 module Model.Scene exposing (..)
 
+import Keyboard exposing (KeyCode)
+import Char exposing (toCode)
+
 import Model.Shared exposing (..)
 
 
 type alias Scene =
   { t : Float
-  , player : Player }
+  , player1 : Player
+  , player2 : Player }
 
 type alias Vector =
   { x : Float
   , y : Float }
 
 type alias Player =
-  { position : Vector
+  { leftKey : KeyCode
+  , rightKey : KeyCode
+  , jumpKey : KeyCode
+  , position : Vector
   , velocity : Vector }
 
 
 initialScene : Scene
 initialScene =
   { t = 0
-  , player = initialPlayer }
+  , player1 = createPlayer 'A' 'D' 'W' 0.25
+  , player2 = createPlayer 'J' 'L' 'I' 0.75 }
 
 
-initialPlayer : Player
-initialPlayer =
-  { position = { x = 0.5, y = icePosY-0.01 }
+createPlayer : Char -> Char -> Char ->  Float -> Player
+createPlayer leftKey rightKey jumpKey posX =
+  { leftKey = Char.toCode leftKey
+  , rightKey = Char.toCode rightKey
+  , jumpKey = Char.toCode jumpKey
+  , position = { x = posX, y = icePosY-0.01 }
   , velocity = { x = 0, y = 0 } }
 
 
@@ -51,3 +62,8 @@ playerRadius = 0.03
 distance : (Float,Float) -> (Float,Float) -> Float
 distance (x1,y1) (x2,y2) =
   (x2-x1)^2 + (y2-y1)^2 |> sqrt
+
+
+players : Scene -> List Player
+players scene =
+  [ scene.player1, scene.player2 ]

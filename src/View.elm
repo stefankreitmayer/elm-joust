@@ -51,13 +51,14 @@ renderStartScreen (w,h)  =
 
 
 renderPlayScreen : (Int,Int) -> Scene -> Html.Html Msg
-renderPlayScreen (w,h) ({t,player} as scene) =
+renderPlayScreen (w,h) ({t,player1,player2} as scene) =
   let
       windowSize = (w,h)
   in
      Svg.svg (svgAttributes windowSize)
      [ renderIce windowSize
-     , renderPlayer windowSize player
+     , renderPlayer windowSize player1
+     , renderPlayer windowSize player2
      ]
 
 
