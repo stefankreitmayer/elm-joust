@@ -3,7 +3,7 @@ module View exposing (view)
 import Html exposing (Html)
 import Html.Attributes exposing (class)
 import Svg exposing (Svg,Attribute)
-import Svg.Attributes as Attributes exposing (x,y,width,height,fill,fontSize,fontFamily,textAnchor)
+import Svg.Attributes as Attributes exposing (x,y,width,height,fill,fontFamily,textAnchor)
 import Svg.Events exposing (onClick)
 import Time exposing (Time)
 import String
@@ -18,10 +18,10 @@ import Json.Encode as Json
 
 
 view : Model -> Html Msg
-view {ui,scene} =
+view {ui,scene,secondsPassed} =
   case ui.screen of
     StartScreen ->
-      renderStartScreen ui.windowSize
+      renderStartScreen ui.windowSize secondsPassed
 
     PlayScreen ->
       renderPlayScreen ui.windowSize scene
@@ -30,23 +30,24 @@ view {ui,scene} =
       renderGameoverScreen ui.windowSize
 
 
-renderStartScreen : (Int,Int) -> Html.Html Msg
-renderStartScreen (w,h)  =
+renderStartScreen : (Int,Int) -> Int -> Html.Html Msg
+renderStartScreen (w,h) secondsPassed =
   let
       clickHandler = onClick StartGame
       screenAttrs = [ clickHandler ] ++ (svgAttributes (w,h))
-      messageAttrs = [ x <| toString (w//2)
-                     , y <| toString (h//2)
-                     , fontSize <| toString ((normalFontSize w) * 2)
-                     , textAnchor "middle"
-                     , fontFamily "Verdana,Helvetica,sans"
-                     , fill "rgba(255,255,255,.8)"
-                     ]
-      message = Svg.text' messageAttrs [ Svg.text "Click to start" ]
+      title = largeText w h (h//5) "Popongo"
+      clickToStart = largeText w h (h*4//5) "Click to start"
+      paragraph y lines = renderTextParagraph (w//2) y (normalFontSize w h) "middle" lines []
+      keys = paragraph (h*3//8) [ "Player 1 keys: A W D" , "Player 2 keys: J I L" ]
+      goal = paragraph (h*4//8) [ "Get points for pushing", "the other off the edge" ]
+      win  = paragraph (h*5//8) [ "Score "++ (toString pointsToWin) ++" points to win!" ]
+      children = [ title ]
+                 ++ (if secondsPassed >= 1 then [ keys, goal, win ] else [] )
+                 ++ (if secondsPassed >= 3 && secondsPassed%2 == 1 then [ clickToStart ] else [] )
   in
       Svg.svg
         screenAttrs
-        [ message ]
+        children
 
 
 renderPlayScreen : (Int,Int) -> Scene -> Html.Html Msg
@@ -64,26 +65,11 @@ renderPlayScreen (w,h) ({t,player1,player2} as scene) =
 renderGameoverScreen : (Int,Int) -> Html.Html Msg
 renderGameoverScreen (w,h)  =
   let
-      screenAttrs = svgAttributes (w,h)
-      messageAttrs = [ x <| toString (w//2)
-                     , y <| toString (h//2)
-                     , fontSize <| toString ((normalFontSize w) * 2)
-                     , textAnchor "middle"
-                     , fontFamily "Verdana,Helvetica,sans"
-                     , fill "rgba(255,255,255,.8)"
-                     ]
-      submessageAttrs = [ x <| toString (w//2)
-                        , y <| toString (h//2 + (normalFontSize w) * 2)
-                        , fontSize <| toString (normalFontSize w)
-                        , textAnchor "middle"
-                        , fontFamily "Verdana,Helvetica,sans"
-                        , fill "rgba(255,255,255,.8)"
-                        ]
-      message = Svg.text' messageAttrs [ Svg.text "Game over" ]
-      submessage = Svg.text' submessageAttrs [ Svg.text "Press SPACE to restart" ]
+      message = largeText w h (h//2) "Game over"
+      submessage = largeText w h (h*2//3) "Press SPACE to restart"
   in
       Svg.svg
-        screenAttrs
+        (svgAttributes (w,h))
         [ message, submessage ]
 
 
@@ -136,6 +122,42 @@ softWhite : String
 softWhite = "rgba(255,255,255,.2)"
 
 
-normalFontSize : Int -> Int
-normalFontSize w =
-  w // 20 |> min 24
+normalFontFamily : String
+normalFontFamily =
+  "Courier New, Courier, Monaco, monospace"
+
+
+normalFontSize : Int -> Int -> Int
+normalFontSize w h =
+  (min w h) // 20 |> min 24
+
+
+normalLineHeight : Int -> Int -> Int
+normalLineHeight w h =
+  (toFloat (normalFontSize w h)) * 1.38 |> floor
+
+
+largeText : Int -> Int -> Int -> String -> Svg Msg
+largeText w h y str =
+  renderTextLine (w//2) y ((normalFontSize w h)*2) "middle" str []
+
+
+renderTextParagraph : Int -> Int -> Int -> String -> List String -> List (Svg.Attribute Msg) -> Svg Msg
+renderTextParagraph xPos yPos fontSize anchor lines extraAttrs =
+  List.indexedMap (\index line -> renderTextLine xPos (yPos+index*fontSize*5//4) fontSize anchor line extraAttrs) lines
+  |> Svg.g []
+
+
+renderTextLine : Int -> Int -> Int -> String -> String -> List (Svg.Attribute Msg) -> Svg Msg
+renderTextLine xPos yPos fontSize anchor content extraAttrs =
+  let
+      attributes = [ x <| toString xPos
+                   , y <| toString yPos
+                   , textAnchor anchor
+                   , fontFamily normalFontFamily
+                   , Attributes.fontSize (toString fontSize)
+                   , fill "rgba(255,255,255,.6)"
+                   ]
+                   |> List.append extraAttrs
+  in
+      Svg.text' attributes [ Svg.text content ]

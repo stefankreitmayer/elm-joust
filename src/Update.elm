@@ -49,6 +49,9 @@ update action ({ui,scene} as model) =
     StartGame ->
       (freshGame ui, Cmd.none)
 
+    TimeSecond _ ->
+      ({ model | secondsPassed = model.secondsPassed+1 }, Cmd.none)
+
     NoOp ->
       (model, Cmd.none)
 

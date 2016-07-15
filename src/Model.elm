@@ -9,13 +9,15 @@ import Model.Scene exposing (..)
 
 type alias Model =
   { ui : Ui
-  , scene : Scene }
+  , scene : Scene
+  , secondsPassed : Int }
 
 
 initialModel : Model
 initialModel =
   { ui = initialUi
-  , scene = initialScene }
+  , scene = initialScene
+  , secondsPassed = 0 }
 
 
 freshGame : Ui -> Model
@@ -25,3 +27,8 @@ freshGame ui =
                  , pressedKeys = Set.empty }
   in
       { initialModel | ui = ui' }
+
+
+pointsToWin : Int
+pointsToWin =
+  5

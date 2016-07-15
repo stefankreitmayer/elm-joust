@@ -15,6 +15,7 @@ type Msg
   | Tick Time
   | KeyChange Bool KeyCode
   | StartGame
+  | TimeSecond Time
   | NoOp
 
 
@@ -26,11 +27,12 @@ subscriptions {ui} =
              , Keyboard.ups (KeyChange False)
              ]
       animation = [ AnimationFrame.diffs Tick ]
+      seconds = Time.every Time.second TimeSecond
   in
      (
      case ui.screen of
        StartScreen ->
-         [ window ]
+         [ window, seconds ]
 
        PlayScreen ->
          [ window ] ++ keys ++ animation
