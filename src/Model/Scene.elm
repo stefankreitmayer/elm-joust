@@ -2,37 +2,56 @@ module Model.Scene exposing (..)
 
 import Keyboard exposing (KeyCode)
 import Char exposing (toCode)
+import Time exposing (Time)
 
 import Model.Geometry exposing (..)
 
 
 type alias Scene =
-  { t : Float
+  { t : Time
   , player1 : Player
-  , player2 : Player }
+  , player2 : Player
+  , round : Round }
 
 type alias Player =
-  { leftKey : KeyCode
+  { score : Int
+  , homePosX : Float
+  , leftKey : KeyCode
   , rightKey : KeyCode
   , jumpKey : KeyCode
   , position : Vector
   , velocity : Vector }
 
+type alias Round =
+  { touchdownTime : Time }
 
 initialScene : Scene
 initialScene =
   { t = 0
   , player1 = createPlayer 'A' 'D' 'W' 0.25
-  , player2 = createPlayer 'J' 'L' 'I' 0.75 }
+  , player2 = createPlayer 'J' 'L' 'I' 0.75
+  , round = newRound }
 
 
 createPlayer : Char -> Char -> Char ->  Float -> Player
 createPlayer leftKey rightKey jumpKey posX =
-  { leftKey = Char.toCode leftKey
+  { score = 0
+  , homePosX = posX
+  , leftKey = Char.toCode leftKey
   , rightKey = Char.toCode rightKey
   , jumpKey = Char.toCode jumpKey
-  , position = { x = posX, y = icePosY-0.01 }
+  , position = { x = posX, y = playerHomePosY }
   , velocity = { x = 0, y = 0 } }
+
+
+newRound : Round
+newRound =
+  { touchdownTime = 0 }
+
+
+playerHomePosY : Float
+playerHomePosY =
+  icePosY-0.01
 
 
 icePosY : Float

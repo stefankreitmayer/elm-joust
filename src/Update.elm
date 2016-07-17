@@ -24,22 +24,24 @@ update action ({ui,scene} as model) =
       let
           player1 = scene.player1 |> steerAndGravity delta ui
           player2 = scene.player2 |> steerAndGravity delta ui
+          round = scene.round
           (player1', player2') = handleCollisions player1 player2
           player1'' = player1' |> movePlayer delta
           player2'' = player2' |> movePlayer delta
-          scene' = { scene | player1 = player1'', player2 = player2'' }
-          hasLost player = player.position.y > 1 + playerRadius*2
-          winner =
-              if hasLost player1' then
-                Just player2'
-              else if hasLost player2' then
-                Just player1'
-              else
-                Nothing
-          screen' = case winner of
-                      Just _ -> GameoverScreen
-                      Nothing -> PlayScreen
-          ui' = { ui | screen = screen', winner = winner }
+          hasAnyPlayerFallen = hasFallen player1 || hasFallen player2
+          isRoundOver = hasAnyPlayerFallen && round.touchdownTime > 1400
+          (player1''', player2''') = applyScores player1'' player2'' isRoundOver
+          (round', screen') =
+            if isRoundOver then
+               (newRound, PlayScreen)
+            else if hasAnyPlayerFallen then
+              ({ round | touchdownTime = round.touchdownTime + delta }, PlayScreen)
+            else
+              (round, PlayScreen)
+          scene' = { scene | player1 = player1'''
+                           , player2 = player2'''
+                           , round = round' }
+          ui' = { ui | screen = screen' }
       in
           ({ model | scene = scene', ui = ui' }, Cmd.none)
 
@@ -54,6 +56,35 @@ update action ({ui,scene} as model) =
 
     NoOp ->
       (model, Cmd.none)
+
+
+applyScores : Player -> Player -> Bool -> (Player,Player)
+applyScores player1 player2 isRoundOver =
+  if isRoundOver then
+    let
+        pointsForPlayer1 = if hasFallen player2 then 1 else 0
+        pointsForPlayer2 = if hasFallen player1 then 1 else 0
+    in
+        (payAndReset player1 pointsForPlayer1
+        ,payAndReset player2 pointsForPlayer2)
+  else
+    (player1, player2)
+
+
+payAndReset : Player -> Int -> Player
+payAndReset player additionalPoints =
+  let
+      position' = Vector player.homePosX playerHomePosY
+      velocity' = Vector 0 0
+  in
+      { player | score = player.score + additionalPoints
+               , position = position'
+               , velocity = velocity' }
+
+
+hasFallen : Player -> Bool
+hasFallen player =
+  player.position.y > 1 + playerRadius*2
 
 
 steerAndGravity : Time -> Ui -> Player -> Player

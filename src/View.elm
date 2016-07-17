@@ -56,7 +56,8 @@ renderPlayScreen (w,h) ({t,player1,player2} as scene) =
       windowSize = (w,h)
   in
      Svg.svg (svgAttributes windowSize)
-     [ renderIce windowSize
+     [ renderScores windowSize player1.score player2.score
+     , renderIce windowSize
      , renderPlayer windowSize player1
      , renderPlayer windowSize player2
      ]
@@ -118,8 +119,20 @@ renderPlayer (w,h) {position} =
         []
 
 
+renderScores : (Int,Int) -> Int -> Int -> Svg Msg
+renderScores (w,h) p1score p2score =
+  let
+      txt = (toString p1score) ++ "  :  " ++ (toString p2score)
+  in
+      renderTextLine (w//2) (h//5) ((normalFontSize w h)*2) "middle" txt []
+
+
 softWhite : String
 softWhite = "rgba(255,255,255,.2)"
+
+
+mediumWhite : String
+mediumWhite = "rgba(255,255,255,.6)"
 
 
 normalFontFamily : String
@@ -156,7 +169,7 @@ renderTextLine xPos yPos fontSize anchor content extraAttrs =
                    , textAnchor anchor
                    , fontFamily normalFontFamily
                    , Attributes.fontSize (toString fontSize)
-                   , fill "rgba(255,255,255,.6)"
+                   , fill mediumWhite
                    ]
                    |> List.append extraAttrs
   in
