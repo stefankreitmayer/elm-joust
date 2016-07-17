@@ -51,7 +51,7 @@ newRound =
 
 playerHomePosY : Float
 playerHomePosY =
-  icePosY-0.01
+  icePosY-0.2
 
 
 icePosY : Float

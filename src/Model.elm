@@ -29,6 +29,6 @@ freshGame ui =
       { initialModel | ui = ui' }
 
 
-pointsToWin : Int
-pointsToWin =
+winScore : Int
+winScore =
   5

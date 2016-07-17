@@ -12,7 +12,7 @@ import Model.Geometry exposing (..)
 import Subscription exposing (..)
 
 import Debug exposing (log)
-------------------------------------------------------------------------- UPDATE
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update action ({ui,scene} as model) =
@@ -31,8 +31,11 @@ update action ({ui,scene} as model) =
           hasAnyPlayerFallen = hasFallen player1 || hasFallen player2
           isRoundOver = hasAnyPlayerFallen && round.touchdownTime > 1400
           (player1''', player2''') = applyScores player1'' player2'' isRoundOver
+          isGameOver = player1'''.score>=winScore || player2'''.score>=winScore
           (round', screen') =
-            if isRoundOver then
+            if isGameOver then
+               (round, GameoverScreen)
+            else if isRoundOver then
                (newRound, PlayScreen)
             else if hasAnyPlayerFallen then
               ({ round | touchdownTime = round.touchdownTime + delta }, PlayScreen)

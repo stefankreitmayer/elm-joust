@@ -27,7 +27,7 @@ view {ui,scene,secondsPassed} =
       renderPlayScreen ui.windowSize scene
 
     GameoverScreen ->
-      renderGameoverScreen ui.windowSize
+      renderGameoverScreen ui.windowSize scene
 
 
 renderStartScreen : (Int,Int) -> Int -> Html.Html Msg
@@ -40,7 +40,7 @@ renderStartScreen (w,h) secondsPassed =
       paragraph y lines = renderTextParagraph (w//2) y (normalFontSize w h) "middle" lines []
       keys = paragraph (h*3//8) [ "Player 1 keys: A W D" , "Player 2 keys: J I L" ]
       goal = paragraph (h*4//8) [ "Get points for pushing", "the other off the edge" ]
-      win  = paragraph (h*5//8) [ "Score "++ (toString pointsToWin) ++" points to win!" ]
+      win  = paragraph (h*5//8) [ "Score "++ (toString winScore) ++" points to win!" ]
       children = [ title ]
                  ++ (if secondsPassed >= 1 then [ keys, goal, win ] else [] )
                  ++ (if secondsPassed >= 3 && secondsPassed%2 == 1 then [ clickToStart ] else [] )
@@ -63,15 +63,27 @@ renderPlayScreen (w,h) ({t,player1,player2} as scene) =
      ]
 
 
-renderGameoverScreen : (Int,Int) -> Html.Html Msg
-renderGameoverScreen (w,h)  =
+renderGameoverScreen : (Int,Int) -> Scene -> Html.Html Msg
+renderGameoverScreen (w,h) {player1,player2} =
   let
-      message = largeText w h (h//2) "Game over"
-      submessage = largeText w h (h*2//3) "Press SPACE to restart"
+      winnerMessage =
+        if player1.score>=winScore && player2.score>=winScore then
+          "It's a draw"
+        else if player1.score>=winScore then
+          "Player 1 wins!"
+        else
+          "Player 2 wins!"
+      winnerText = largeText w h (h//3) winnerMessage
+      restartText = smallText w h (h//2) "Press SPACE to restart"
+      players =
+        [ player1, player2 ]
+        |> List.filter (\p -> p.score >= winScore)
+        |> List.map (\p -> renderPlayer (w,h) p)
+      children = [ winnerText , restartText , renderIce (w,h) ] ++ players
   in
       Svg.svg
         (svgAttributes (w,h))
-        [ message, submessage ]
+        children
 
 
 svgAttributes : (Int, Int) -> List (Attribute Msg)
@@ -153,6 +165,11 @@ normalLineHeight w h =
 largeText : Int -> Int -> Int -> String -> Svg Msg
 largeText w h y str =
   renderTextLine (w//2) y ((normalFontSize w h)*2) "middle" str []
+
+
+smallText : Int -> Int -> Int -> String -> Svg Msg
+smallText w h y str =
+  renderTextLine (w//2) y (normalFontSize w h) "middle" str []
 
 
 renderTextParagraph : Int -> Int -> Int -> String -> List String -> List (Svg.Attribute Msg) -> Svg Msg
