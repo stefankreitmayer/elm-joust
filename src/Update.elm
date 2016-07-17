@@ -207,7 +207,7 @@ rollOffEdge : Float -> Float -> Bool -> Float
 rollOffEdge x y isLeftSide =
   let
       edgePosX = if isLeftSide then icePosX else iceRightEdgeX
-      increment = 0.001 * (if isLeftSide then -1 else 1)
+      increment = 0.003 * (if isLeftSide then -1 else 1)
   in
       if distance (x,y-playerRadius) (edgePosX,icePosY) > playerRadius then
         x
