@@ -35,7 +35,7 @@ renderStartScreen (w,h) secondsPassed =
   let
       clickHandler = onClick StartGame
       screenAttrs = [ clickHandler ] ++ (svgAttributes (w,h))
-      title = largeText w h (h//5) "Popongo"
+      title = largeText w h (h//5) "Elm Joust"
       clickToStart = smallText w h (h*4//5) "Click to start"
       paragraph y lines = renderTextParagraph (w//2) y (normalFontSize w h) "middle" lines []
       keys = paragraph (h*3//8) [ "Player 1 keys: A W D" , "Player 2 keys: J I L" ]
@@ -140,11 +140,11 @@ renderScores (w,h) p1score p2score =
 
 
 softWhite : String
-softWhite = "rgba(255,255,255,.2)"
+softWhite = "rgba(255,255,255,.5)"
 
 
 mediumWhite : String
-mediumWhite = "rgba(255,255,255,.6)"
+mediumWhite = "rgba(255,255,255,.8)"
 
 
 normalFontFamily : String
