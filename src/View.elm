@@ -41,13 +41,31 @@ renderStartScreen (w,h) secondsPassed =
       keys = paragraph (h*3//8) [ "Player 1 keys: A W D" , "Player 2 keys: J I L" ]
       goal = paragraph (h*4//8) [ "Get points for pushing", "the other off the edge" ]
       win  = paragraph (h*5//8) [ "Score "++ (toString winScore) ++" points to win!" ]
-      children = [ title ]
+      githubLink = renderGithubLink (w,h)
+      children = [ title, githubLink ]
                  ++ (if secondsPassed >= 1 then [ keys, goal, win ] else [] )
                  ++ (if secondsPassed >= 3 && secondsPassed%2 == 1 then [ clickToStart ] else [] )
   in
       Svg.svg
         screenAttrs
         children
+
+
+renderGithubLink : (Int,Int) -> Svg Msg
+renderGithubLink (w,h) =
+  let
+      text = "Source code at GitHub"
+      line = renderTextLine (w//2) (h*95//100) (normalFontSize w h) "middle" text []
+      url = "https://github.com/stefankreitmayer/elm-joust"
+  in
+      svgHyperlink url line
+
+
+svgHyperlink : String -> Svg Msg -> Svg Msg
+svgHyperlink url child =
+  Svg.a
+  [ Attributes.xlinkHref url ]
+  [ child ]
 
 
 renderPlayScreen : (Int,Int) -> Scene -> Html.Html Msg
