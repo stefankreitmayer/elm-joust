@@ -23,10 +23,10 @@ initialModel =
 freshGame : Ui -> Model
 freshGame ui =
   let
-      ui' = { ui | screen = PlayScreen
+      ui_ = { ui | screen = PlayScreen
                  , pressedKeys = Set.empty }
   in
-      { initialModel | ui = ui' }
+      { initialModel | ui = ui_ }
 
 
 winScore : Int

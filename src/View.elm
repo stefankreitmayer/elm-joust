@@ -208,4 +208,4 @@ renderTextLine xPos yPos fontSize anchor content extraAttrs =
                    ]
                    |> List.append extraAttrs
   in
-      Svg.text' attributes [ Svg.text content ]
+      Svg.text_ attributes [ Svg.text content ]

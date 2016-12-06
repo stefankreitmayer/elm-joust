@@ -1,7 +1,6 @@
 module Main exposing (..)
 
 import Html exposing (Html)
-import Html.App as Html
 
 import Model exposing (Model,initialModel)
 import Update exposing (update)
@@ -10,7 +9,7 @@ import Subscription exposing (subscriptions, initialWindowSizeCommand)
 
 --------------------------------------------------------------------------- MAIN
 
-main : Program Never
+main : Program Never Model Subscription.Msg
 main =
   Html.program
   { init = (initialModel, initialWindowSizeCommand)
