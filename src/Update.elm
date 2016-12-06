@@ -25,14 +25,14 @@ update action ({ui,scene} as model) =
           player1 = scene.player1 |> steerAndGravity delta ui
           player2 = scene.player2 |> steerAndGravity delta ui
           round = scene.round
-          (player1', player2') = handleCollisions player1 player2
-          player1'' = player1' |> movePlayer delta
-          player2'' = player2' |> movePlayer delta
+          (player1_, player2_) = handleCollisions player1 player2
+          player1__ = player1_ |> movePlayer delta
+          player2__ = player2_ |> movePlayer delta
           hasAnyPlayerFallen = hasFallen player1 || hasFallen player2
           isRoundOver = hasAnyPlayerFallen && round.touchdownTime > 1400
-          (player1''', player2''') = applyScores player1'' player2'' isRoundOver
-          isGameOver = player1'''.score>=winScore || player2'''.score>=winScore
-          (round', screen') =
+          (player1___, player2___) = applyScores player1__ player2__ isRoundOver
+          isGameOver = player1___.score>=winScore || player2___.score>=winScore
+          (round_, screen_) =
             if isGameOver then
                (round, GameoverScreen)
             else if isRoundOver then
@@ -41,12 +41,12 @@ update action ({ui,scene} as model) =
               ({ round | touchdownTime = round.touchdownTime + delta }, PlayScreen)
             else
               (round, PlayScreen)
-          scene' = { scene | player1 = player1'''
-                           , player2 = player2'''
-                           , round = round' }
-          ui' = { ui | screen = screen' }
+          scene_ = { scene | player1 = player1___
+                           , player2 = player2___
+                           , round = round_ }
+          ui_ = { ui | screen = screen_ }
       in
-          ({ model | scene = scene', ui = ui' }, Cmd.none)
+          ({ model | scene = scene_, ui = ui_ }, Cmd.none)
 
     KeyChange pressed keycode ->
       (handleKeyChange pressed keycode model, Cmd.none)
@@ -77,12 +77,12 @@ applyScores player1 player2 isRoundOver =
 payAndReset : Player -> Int -> Player
 payAndReset player additionalPoints =
   let
-      position' = Vector player.homePosX playerHomePosY
-      velocity' = Vector 0 0
+      position_ = Vector player.homePosX playerHomePosY
+      velocity_ = Vector 0 0
   in
       { player | score = player.score + additionalPoints
-               , position = position'
-               , velocity = velocity' }
+               , position = position_
+               , velocity = velocity_ }
 
 
 hasFallen : Player -> Bool
@@ -100,12 +100,12 @@ steerAndGravity delta {pressedKeys} ({velocity} as player) =
                    else
                      0
       ax = directionX * 0.0000019
-      vx' = velocity.x + ax*delta |> friction delta
-      vy' = velocity.y |> (gravity delta)
-      velocity' = { velocity | x = vx'
-                             , y = vy' }
+      vx_ = velocity.x + ax*delta |> friction delta
+      vy_ = velocity.y |> (gravity delta)
+      velocity_ = { velocity | x = vx_
+                             , y = vy_ }
   in
-     { player | velocity = velocity' }
+     { player | velocity = velocity_ }
 
 
 handleCollisions : Player -> Player -> (Player,Player)
@@ -121,10 +121,10 @@ bounceOffEachOther player1 player2 =
   let
       v1 = deflect player1 player2
       v2 = deflect player2 player1
-      player1' = { player1 | velocity = v1 }
-      player2' = { player2 | velocity = v2 }
+      player1_ = { player1 | velocity = v1 }
+      player2_ = { player2 | velocity = v2 }
   in
-      (player1', player2')
+      (player1_, player2_)
 
 
 movePlayer : Time -> Player -> Player
@@ -139,14 +139,14 @@ movePlayer delta ({velocity,position} as player) =
                  walk
                else
                  fall
-      (x', y', vx', vy') = stepFn delta position.x position.y vx vy
-      position' = { position | x = x'
-                             , y = y' }
-      velocity' = { velocity | x = vx'
-                             , y = vy' }
+      (x_, y_, vx_, vy_) = stepFn delta position.x position.y vx vy
+      position_ = { position | x = x_
+                             , y = y_ }
+      velocity_ = { velocity | x = vx_
+                             , y = vy_ }
   in
-      { player | position = position'
-               , velocity = velocity' }
+      { player | position = position_
+               , velocity = velocity_ }
 
 
 
@@ -158,25 +158,25 @@ fly delta x y vx vy =
 walk : Time -> Float -> Float -> Float -> Float -> (Float,Float,Float,Float)
 walk delta x y vx vy =
   let
-      x = x + vx*delta
-      y = icePosY
+      x_ = x + vx*delta
+      y_ = icePosY
       vy = 0
   in
-      (x, y, vx, vy)
+      (x_, y_, vx, vy)
 
 
 fall : Time -> Float -> Float -> Float -> Float -> (Float,Float,Float,Float)
 fall delta x y vx vy =
   let
-      y = y + vy*delta
-      x = x + vx*delta
+      y_ = y + vy*delta
+      x_ = x + vx*delta
       isLeftSide = x<0.5
-      x' = if y<icePosY+playerRadius then
-             rollOffEdge x y isLeftSide
+      x__ = if y_<icePosY+playerRadius then
+             rollOffEdge x_ y_ isLeftSide
            else
-             keepOutOfBounds x
+             keepOutOfBounds x_
   in
-      (x', y, vx, vy)
+      (x__, y_, vx, vy)
 
 
 inBounds : Float -> Bool
@@ -193,9 +193,9 @@ jump : Player -> Player
 jump ({position,velocity} as player) =
   let
       vy = if position.y==icePosY then -0.001 else velocity.y
-      velocity' = { velocity | y = vy }
+      velocity_ = { velocity | y = vy }
   in
-      { player | velocity = velocity' }
+      { player | velocity = velocity_ }
 
 
 gravity : Time -> Float -> Float
@@ -227,25 +227,25 @@ handleKeyChange : Bool -> KeyCode -> Model -> Model
 handleKeyChange pressed keycode ({scene,ui} as model) =
   let
       fn = if pressed then Set.insert else Set.remove
-      pressedKeys' = fn keycode ui.pressedKeys
+      pressedKeys_ = fn keycode ui.pressedKeys
   in
       case ui.screen of
         PlayScreen ->
           let
-              ui' = { ui | pressedKeys = pressedKeys' }
-              justPressed keycode = freshKeyPress keycode ui.pressedKeys pressedKeys'
+              ui_ = { ui | pressedKeys = pressedKeys_ }
+              justPressed keycode = freshKeyPress keycode ui.pressedKeys pressedKeys_
               maybeJump player = if justPressed player.jumpKey then
                                    jump player
                                  else
                                    player
-              player1' = maybeJump scene.player1
-              player2' = maybeJump scene.player2
-              scene' = { scene |  player1 = player1', player2 = player2' }
+              player1_ = maybeJump scene.player1
+              player2_ = maybeJump scene.player2
+              scene_ = { scene |  player1 = player1_, player2 = player2_ }
           in
-              { model | ui = ui', scene = scene' }
+              { model | ui = ui_, scene = scene_ }
 
         GameoverScreen ->
-          if freshKeyPress (Char.toCode ' ') ui.pressedKeys pressedKeys' then
+          if freshKeyPress (Char.toCode ' ') ui.pressedKeys pressedKeys_ then
             freshGame ui
           else
             model
