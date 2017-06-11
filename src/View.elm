@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import Html exposing (Html)
+import Html exposing (Html, div)
 import Html.Attributes exposing (class)
 import Svg exposing (Svg,Attribute)
 import Svg.Attributes as Attributes exposing (x,y,width,height,fill,fontFamily,textAnchor)
@@ -30,25 +30,42 @@ view {ui,scene,secondsPassed} =
       renderGameoverScreen ui.windowSize scene
 
 
-renderStartScreen : (Int,Int) -> Int -> Html.Html Msg
+renderStartScreen : (Int,Int) -> Int -> Html Msg
 renderStartScreen (w,h) secondsPassed =
   let
       clickHandler = onClick StartGame
       screenAttrs = [ clickHandler ] ++ (svgAttributes (w,h))
       title = largeText w h (h//5) "Elm Joust"
-      clickToStart = smallText w h (h*4//5) "Click to start"
+      clickToStart = smallText w h (h*6//8) "Click to start"
       paragraph y lines = renderTextParagraph (w//2) y (normalFontSize w h) "middle" lines []
       keys = paragraph (h*3//8) [ "Player 1 keys: A W D" , "Player 2 keys: J I L" ]
       goal = paragraph (h*4//8) [ "Get points for pushing", "the other off the edge" ]
       win  = paragraph (h*5//8) [ "Score "++ (toString winScore) ++" points to win!" ]
+      hardwareWarning1 = paragraph (h*9//20) [ "You need a keyboard" ]
+      hardwareWarning2 = paragraph (h*10//20) [ "to play this game :(" ]
+      authorLink = renderAuthorLink (w,h)
       githubLink = renderGithubLink (w,h)
-      children = [ title, githubLink ]
-                 ++ (if secondsPassed >= 1 then [ keys, goal, win ] else [] )
-                 ++ (if secondsPassed >= 3 && secondsPassed%2 == 1 then [ clickToStart ] else [] )
+      children =
+        if w < 800 then
+          [ title, hardwareWarning1, hardwareWarning2 ]
+        else
+          [ title, authorLink, githubLink ]
+          ++ (if secondsPassed >= 1 then [ keys, goal, win ] else [] )
+          ++ (if secondsPassed >= 3 && secondsPassed%2 == 1 then [ clickToStart ] else [] )
   in
       Svg.svg
         screenAttrs
         children
+
+
+renderAuthorLink : (Int,Int) -> Svg Msg
+renderAuthorLink (w,h) =
+  let
+      text = "Created by Stefan Kreitmayer"
+      line = renderTextLine (w//2) (h*7//8) (normalFontSize w h) "middle" text []
+      url = "http://www.kreitmayer.com"
+  in
+      svgHyperlink url line
 
 
 renderGithubLink : (Int,Int) -> Svg Msg
@@ -68,7 +85,7 @@ svgHyperlink url child =
   [ child ]
 
 
-renderPlayScreen : (Int,Int) -> Scene -> Html.Html Msg
+renderPlayScreen : (Int,Int) -> Scene -> Html Msg
 renderPlayScreen (w,h) ({t,player1,player2} as scene) =
   let
       windowSize = (w,h)
@@ -81,7 +98,7 @@ renderPlayScreen (w,h) ({t,player1,player2} as scene) =
      ]
 
 
-renderGameoverScreen : (Int,Int) -> Scene -> Html.Html Msg
+renderGameoverScreen : (Int,Int) -> Scene -> Html Msg
 renderGameoverScreen (w,h) {player1,player2} =
   let
       winnerMessage =
@@ -111,7 +128,7 @@ svgAttributes (w, h) =
   , Attributes.viewBox <| "0 0 " ++ (toString w) ++ " " ++ (toString h)
   , VirtualDom.property "xmlns:xlink" (Json.string "http://www.w3.org/1999/xlink")
   , Attributes.version "1.1"
-  , Attributes.style "position: fixed;"
+  , Attributes.style "position: fixed; cursor: none;"
   ]
 
 
