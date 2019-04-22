@@ -23,3 +23,9 @@ Two players and a keyboard
 
 1. Run `build.bat`
 2. Open `index.html` in a browser
+
+## The amazing feature
+
+Amazingly, this game was featured in Teach Kids Code in Oslo. Thanks to Teodor Heggelund. Here is the link to his talk:
+
+https://www.youtube.com/watch?v=FSec8QmgEWo&feature=youtu.be&t=701
