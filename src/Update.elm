@@ -3,7 +3,6 @@ module Update exposing (..)
 import Set exposing (Set)
 import Char
 import Time exposing (Time)
-import Keyboard exposing (KeyCode)
 
 import Model exposing (..)
 import Model.Ui exposing (..)
@@ -11,7 +10,6 @@ import Model.Scene exposing (..)
 import Model.Geometry exposing (..)
 import Subscription exposing (..)
 
-import Debug exposing (log)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)

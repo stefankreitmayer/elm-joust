@@ -1,6 +1,5 @@
 module Model.Scene exposing (..)
 
-import Keyboard exposing (KeyCode)
 import Char exposing (toCode)
 import Time exposing (Time)
 

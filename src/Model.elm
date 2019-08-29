@@ -1,6 +1,6 @@
 module Model exposing (..)
 
-import Time exposing (Time)
+import Time exposing (Posix)
 import Set
 
 import Model.Ui exposing (..)

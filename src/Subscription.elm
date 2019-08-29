@@ -19,6 +19,9 @@ type Msg
   | NoOp
 
 
+type Key =  Start | Left | Right | Jump
+
+
 subscriptions : Model -> Sub Msg
 subscriptions {ui} =
   let
@@ -46,3 +49,40 @@ subscriptions {ui} =
 initialWindowSizeCommand : Cmd Msg
 initialWindowSizeCommand =
   Task.perform (\{width,height} -> ResizeWindow (width,height)) Window.size
+
+
+toKey : String -> Key
+toKey str = 
+  case str of
+    "W" ->
+      Jump
+    
+    "A" ->
+      Left
+    
+    "D" ->
+      Right
+    
+    "Space" ->
+      Start
+
+keyDecoder : Decode.Decoder Key
+keyDecoder =
+  Decode.map toKey Decode.string
+    
+decodeKey : Decode.Value -> Maybe Key
+decodeKey val =
+    case (Decode.decodeValue keyDecoder val) of
+        Ok key ->
+            Just key
+
+        Err _ ->
+            Nothing
+        
+
+-- port
+port getKey : (Decode.Value -> msg ) -> Sub msg
+
+keyPressed : (Maybe Key -> msg) -> Sub msg
+keyPressed toMsg = 
+    getKey (\val -> toMsg (decodeKey val))
