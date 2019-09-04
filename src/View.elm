@@ -5,15 +5,13 @@ import Html.Attributes exposing (class)
 import Svg exposing (Svg,Attribute)
 import Svg.Attributes as Attributes exposing (x,y,width,height,fill,fontFamily,textAnchor)
 import Svg.Events exposing (onClick)
-import Time exposing (Time)
-import String
+import Time exposing (Posix)
 
 import Model exposing (..)
 import Model.Ui exposing (..)
 import Model.Scene exposing (..)
 import Subscription exposing (..)
 
-import VirtualDom
 import Json.Encode as Json
 
 
