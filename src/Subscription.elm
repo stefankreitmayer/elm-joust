@@ -1,36 +1,32 @@
-module Subscription exposing (..)
+port module Subscription exposing (..)
 
-import Time exposing (Time,second)
+import Time exposing (Posix)
 
 import Model exposing (..)
 import Model.Ui exposing (..)
-import Window
+import Model.Scene exposing (KeyCode)
+import Browser.Events exposing (onAnimationFrameDelta, onResize, onKeyDown, onKeyUp)
 import Task
-import AnimationFrame
-import Keyboard exposing (KeyCode)
 
 
 type Msg
   = ResizeWindow (Int,Int)
-  | Tick Time
+  | Tick Posix
   | KeyChange Bool KeyCode
   | StartGame
-  | TimeSecond Time
+  | TimeSecond Posix
   | NoOp
-
-
-type Key =  Start | Left | Right | Jump
 
 
 subscriptions : Model -> Sub Msg
 subscriptions {ui} =
   let
-      window = Window.resizes (\{width,height} -> ResizeWindow (width,height))
-      keys = [ Keyboard.downs (KeyChange True)
-             , Keyboard.ups (KeyChange False)
+      window = onResize (\{width,height} -> ResizeWindow (width,height))
+      keys = [ onKeyDown (KeyChange True)
+             , onKeyUp (KeyChange False)
              ]
-      animation = [ AnimationFrame.diffs Tick ]
-      seconds = Time.every Time.second TimeSecond
+      animation = [ onAnimationFrameDelta Tick ]
+      seconds = Time.every 1000 TimeSecond
   in
      (
      case ui.screen of
@@ -48,41 +44,4 @@ subscriptions {ui} =
 
 initialWindowSizeCommand : Cmd Msg
 initialWindowSizeCommand =
-  Task.perform (\{width,height} -> ResizeWindow (width,height)) Window.size
-
-
-toKey : String -> Key
-toKey str = 
-  case str of
-    "W" ->
-      Jump
-    
-    "A" ->
-      Left
-    
-    "D" ->
-      Right
-    
-    "Space" ->
-      Start
-
-keyDecoder : Decode.Decoder Key
-keyDecoder =
-  Decode.map toKey Decode.string
-    
-decodeKey : Decode.Value -> Maybe Key
-decodeKey val =
-    case (Decode.decodeValue keyDecoder val) of
-        Ok key ->
-            Just key
-
-        Err _ ->
-            Nothing
-        
-
--- port
-port getKey : (Decode.Value -> msg ) -> Sub msg
-
-keyPressed : (Maybe Key -> msg) -> Sub msg
-keyPressed toMsg = 
-    getKey (\val -> toMsg (decodeKey val))
+  Task.perform (\(width,height) -> ResizeWindow (width,height)) initialUi.windowSize
