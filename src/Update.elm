@@ -2,7 +2,7 @@ module Update exposing (..)
 
 import Set exposing (Set)
 import Char
-import Time exposing (Time)
+import Time exposing (Posix)
 
 import Model exposing (..)
 import Model.Ui exposing (..)
