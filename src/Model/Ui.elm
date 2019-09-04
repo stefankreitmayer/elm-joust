@@ -7,7 +7,7 @@ import Model.Scene exposing (..)
 
 type alias Ui =
   { windowSize : (Int, Int)
-  , pressedKeys : Set Key
+  , pressedKeys : Set KeyCode
   , screen : Screen }
 
 
@@ -20,6 +20,6 @@ initialUi =
   , screen = StartScreen }
 
 
-keyPressed : Key -> Set Key -> Bool
+keyPressed : KeyCode -> Set KeyCode -> Bool
 keyPressed keycode pressedKeys =
   Set.member keycode pressedKeys
