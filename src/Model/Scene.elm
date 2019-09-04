@@ -1,13 +1,14 @@
 module Model.Scene exposing (..)
 
 import Char exposing (toCode)
-import Time exposing (Time)
+import Time exposing (Posix)
 
 import Model.Geometry exposing (..)
 
+type alias KeyCode = Int
 
 type alias Scene =
-  { t : Time
+  { t : Float
   , player1 : Player
   , player2 : Player
   , round : Round }
@@ -22,7 +23,7 @@ type alias Player =
   , velocity : Vector }
 
 type alias Round =
-  { touchdownTime : Time }
+  { touchdownTime : Float }
 
 initialScene : Scene
 initialScene =
