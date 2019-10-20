@@ -1,4 +1,4 @@
-port module Subscription exposing (Msg(..), subscriptions)
+port module Subscription exposing (Msg(..), subscriptions, decodeTuple)
 
 import Browser.Events exposing (onAnimationFrameDelta)
 import Json.Decode as Decode
@@ -56,7 +56,10 @@ keyDecoder =
 
 toDirection : String -> KeyCode
 toDirection string =
-    case string of
+    let
+        toUpper = String.toUpper string
+    in
+    case toUpper of
         "A" ->
             65
 
@@ -126,7 +129,7 @@ type alias Temp =
 tupleDecoder : Decode.Decoder Temp
 tupleDecoder =
     Decode.map2 Temp
-        (Decode.field "height" Decode.int)
+        (Decode.field "width" Decode.int)
         (Decode.field "height" Decode.int)
 
 
