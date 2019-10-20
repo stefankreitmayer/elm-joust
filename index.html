@@ -17,6 +17,25 @@
   <script type="text/javascript">
     
     var app = Elm.Main.fullscreen();
+
+    document.addEventListener("keydown", function(event) {
+            app.ports.keyDown.send(event.key);
+    }, true);
+
+    document.addEventListener("keyup", function(event) {
+            app.ports.keyUp.send(event.key);
+    }, true);
+
+    documen.addEventListener("onresize", function(event) {
+      j = {
+        height: window.innerHeight,
+        width: window.innerWidth
+      }
+
+      app.ports.on
+
+    }, true);
+
     
   </script>
 
