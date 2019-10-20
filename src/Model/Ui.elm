@@ -24,6 +24,9 @@ initialUi =
     , screen = StartScreen
     }
 
+setWindowSize : (Int, Int) -> Ui -> Ui
+setWindowSize size ui =
+  {ui | windowSize = size}
 
 keyPressed : KeyCode -> Set KeyCode -> Bool
 keyPressed keycode pressedKeys =
