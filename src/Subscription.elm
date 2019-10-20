@@ -49,12 +49,6 @@ subscriptions { ui } =
         |> Sub.batch
 
 
-
--- initialWindowSizeCommand : Cmd Msg
--- initialWindowSizeCommand =
---   Task.perform ResizeWindow
-
-
 keyDecoder : Decode.Decoder KeyCode
 keyDecoder =
     Decode.map toDirection Decode.string

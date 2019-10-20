@@ -11,6 +11,7 @@ import Svg exposing (Attribute, Svg)
 import Svg.Attributes as Attributes exposing (fill, fontFamily, height, textAnchor, width, x, y)
 import Svg.Events exposing (onClick)
 import Time exposing (Posix)
+import VirtualDom
 
 
 view : Model -> Html Msg
@@ -51,7 +52,7 @@ renderStartScreen ( w, h ) secondsPassed =
             paragraph (h * 4 // 8) [ "Get points for pushing", "the other off the edge" ]
 
         win =
-            paragraph (h * 5 // 8) [ "Score " ++ toString winScore ++ " points to win!" ]
+            paragraph (h * 5 // 8) [ "Score " ++ String.fromInt winScore ++ " points to win!" ]
 
         hardwareWarning1 =
             paragraph (h * 9 // 20) [ "You need a keyboard" ]
@@ -77,7 +78,7 @@ renderStartScreen ( w, h ) secondsPassed =
                         else
                             []
                        )
-                    ++ (if secondsPassed >= 3 && secondsPassed % 2 == 1 then
+                    ++ (if secondsPassed >= 3 && Basics.remainderBy secondsPassed 2 == 1 then
                             [ clickToStart ]
 
                         else
@@ -174,9 +175,9 @@ renderGameoverScreen ( w, h ) { player1, player2 } =
 
 svgAttributes : ( Int, Int ) -> List (Attribute Msg)
 svgAttributes ( w, h ) =
-    [ width (toString w)
-    , height (toString h)
-    , Attributes.viewBox <| "0 0 " ++ toString w ++ " " ++ toString h
+    [ width (String.fromInt w)
+    , height (String.fromInt h)
+    , Attributes.viewBox <| "0 0 " ++ String.fromInt w ++ " " ++ String.fromInt h
     , VirtualDom.property "xmlns:xlink" (Json.string "http://www.w3.org/1999/xlink")
     , Attributes.version "1.1"
     , Attributes.style "position: fixed; cursor: none;"
@@ -187,16 +188,16 @@ renderIce : ( Int, Int ) -> Svg Msg
 renderIce ( w, h ) =
     let
         xString =
-            toFloat w * icePosX |> toString
+            toFloat w * icePosX |> String.fromFloat
 
         yString =
-            toFloat (h - w) + toFloat w * icePosY |> toString
+            toFloat (h - w) + toFloat w * icePosY |> String.fromFloat
 
         widthString =
-            toFloat w * iceWidth |> toString
+            toFloat w * iceWidth |> String.fromFloat
 
         heightString =
-            toFloat w * (1 - icePosY) |> toString
+            toFloat w * (1 - icePosY) |> String.fromFloat
     in
     Svg.rect
         [ x xString
@@ -212,13 +213,13 @@ renderPlayer : ( Int, Int ) -> Player -> Svg Msg
 renderPlayer ( w, h ) { position } =
     let
         x =
-            toFloat w * position.x |> toString
+            toFloat w * position.x |> String.fromFloat
 
         y =
-            toFloat (h - w) + toFloat w * (position.y - playerRadius) |> toString
+            toFloat (h - w) + toFloat w * (position.y - playerRadius) |> String.fromFloat
 
         radius =
-            toFloat w * playerRadius |> toString
+            toFloat w * playerRadius |> String.fromFloat
     in
     Svg.circle
         [ Attributes.cx x
@@ -233,7 +234,7 @@ renderScores : ( Int, Int ) -> Int -> Int -> Svg Msg
 renderScores ( w, h ) p1score p2score =
     let
         txt =
-            toString p1score ++ "  :  " ++ toString p2score
+            String.fromInt p1score ++ "  :  " ++ String.fromInt p2score
     in
     renderTextLine (w // 2) (h // 5) (normalFontSize w h * 2) "middle" txt []
 
@@ -283,11 +284,11 @@ renderTextLine : Int -> Int -> Int -> String -> String -> List (Svg.Attribute Ms
 renderTextLine xPos yPos fontSize anchor content extraAttrs =
     let
         attributes =
-            [ x <| toString xPos
-            , y <| toString yPos
+            [ x <| String.fromInt xPos
+            , y <| String.fromInt yPos
             , textAnchor anchor
             , fontFamily normalFontFamily
-            , Attributes.fontSize (toString fontSize)
+            , Attributes.fontSize (String.fromInt fontSize)
             , fill mediumWhite
             ]
                 |> List.append extraAttrs

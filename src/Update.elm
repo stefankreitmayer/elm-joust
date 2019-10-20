@@ -26,12 +26,19 @@ update action ({ ui, scene } as model) =
             ( { model | ui = { ui | windowSize = dimensions } }, Cmd.none )
 
         Tick delta ->
+            ( model, callTickFloat delta )
+
+        TickFloat delta ->
             let
+                posixDelta =
+                    Basics.floor delta
+                        |> Time.millisToPosix
+
                 player1 =
-                    scene.player1 |> steerAndGravity delta ui
+                    scene.player1 |> steerAndGravity posixDelta ui
 
                 player2 =
-                    scene.player2 |> steerAndGravity delta ui
+                    scene.player2 |> steerAndGravity posixDelta ui
 
                 round =
                     scene.round
@@ -40,10 +47,10 @@ update action ({ ui, scene } as model) =
                     handleCollisions player1 player2
 
                 player1__ =
-                    player1_ |> movePlayer delta
+                    player1_ |> movePlayer posixDelta
 
                 player2__ =
-                    player2_ |> movePlayer delta
+                    player2_ |> movePlayer posixDelta
 
                 hasAnyPlayerFallen =
                     hasFallen player1 || hasFallen player2
@@ -65,7 +72,7 @@ update action ({ ui, scene } as model) =
                         ( newRound, PlayScreen )
 
                     else if hasAnyPlayerFallen then
-                        ( { round | touchdownTime = round.touchdownTime + (Basics.toFloat <| Time.posixToMillis delta) }, PlayScreen )
+                        ( { round | touchdownTime = round.touchdownTime + delta }, PlayScreen )
 
                     else
                         ( round, PlayScreen )
@@ -80,10 +87,7 @@ update action ({ ui, scene } as model) =
                 ui_ =
                     { ui | screen = screen_ }
             in
-            ( { model | scene = scene_, ui = ui_ }, callTickFloat delta )
-
-        TickFloat t ->
-            ( model, Cmd.none )
+            ( { model | scene = scene_, ui = ui_ }, Cmd.none )
 
         KeyChange pressed keycode ->
             ( handleKeyChange pressed keycode model, Cmd.none )
