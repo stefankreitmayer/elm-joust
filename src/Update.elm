@@ -11,7 +11,7 @@ import Task
 import Time exposing (Posix)
 
 
-type alias FourTuple =
+type alias Position =
     { x : Float
     , y : Float
     , vx : Float
@@ -250,7 +250,7 @@ movePlayer delta ({ velocity, position } as player) =
     }
 
 
-fly : Time.Posix -> Float -> Float -> Float -> Float -> FourTuple
+fly : Time.Posix -> Float -> Float -> Float -> Float -> Position
 fly delta x y vx vy =
     { x = x + vx * (Basics.toFloat <| Time.posixToMillis delta)
     , y = y + vy * (Basics.toFloat <| Time.posixToMillis delta)
@@ -259,7 +259,7 @@ fly delta x y vx vy =
     }
 
 
-walk : Time.Posix -> Float -> Float -> Float -> Float -> FourTuple
+walk : Time.Posix -> Float -> Float -> Float -> Float -> Position
 walk delta x y vx vy =
     let
         x_ =
@@ -271,10 +271,10 @@ walk delta x y vx vy =
         vy_ =
             0
     in
-    FourTuple x_ y_ vx vy_
+    Position x_ y_ vx vy_
 
 
-fall : Time.Posix -> Float -> Float -> Float -> Float -> FourTuple
+fall : Time.Posix -> Float -> Float -> Float -> Float -> Position
 fall delta x y vx vy =
     let
         y_ =
@@ -293,7 +293,7 @@ fall delta x y vx vy =
             else
                 keepOutOfBounds x_
     in
-    FourTuple x__ y_ vx vy
+    Position x__ y_ vx vy
 
 
 inBounds : Float -> Bool
