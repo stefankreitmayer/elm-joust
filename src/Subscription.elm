@@ -78,6 +78,9 @@ toDirection string =
         "I" ->
             73
 
+        " " ->
+          32
+
         _ ->
             0
 
