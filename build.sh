@@ -1,1 +1,1 @@
-elm make --output target/elm.js src/**.elm
+elm make src/Main.elm --output target/elm.js
