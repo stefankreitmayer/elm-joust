@@ -78,7 +78,7 @@ renderStartScreen ( w, h ) secondsPassed =
                         else
                             []
                        )
-                    ++ (if secondsPassed >= 3 && Basics.remainderBy secondsPassed 2 == 1 then
+                    ++ (if secondsPassed >= 3 && (Basics.modBy 2 secondsPassed) == 1 then
                             [ clickToStart ]
 
                         else
